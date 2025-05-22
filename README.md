@@ -29,40 +29,7 @@ A smart Chrome tab management tool that automatically closes idle tabs based on 
 
 ## ⚙️ Setup
 
-### Option 1: Quick Setup (Recommended)
-
-1. **Save the Chrome Debug Launcher** as `Chrome_Debug.bat`:
-   ```batch
-   @echo off
-   echo Closing all Chrome processes...
-   taskkill /f /im chrome.exe >nul 2>&1
-   echo Waiting for Chrome to close completely...
-   timeout /t 2 /nobreak >nul
-   echo Starting Chrome with debug mode...
-   start "" "C:\Program Files\Google\Chrome\Application\chrome.exe" --remote-debugging-port=9222
-   echo Chrome started with debug mode on port 9222
-   pause
-   ```
-
-2. **Save the Quick Runner** as `Close_Tabs.bat`:
-   ```batch
-   @echo off
-   cd /d "C:\path\to\your\script\directory"
-   echo Choose an option:
-   echo 1. Close tabs older than 7 days (recommended)
-   echo 2. Close tabs older than 14 days  
-   echo 3. Close tabs older than 30 days
-   echo 4. Dry run - see what would be closed (7 days)
-   set /p choice="Enter your choice (1-4): "
-   
-   if "%choice%"=="1" python tab_closer.py --days 7 --verbose
-   if "%choice%"=="2" python tab_closer.py --days 14 --verbose
-   if "%choice%"=="3" python tab_closer.py --days 30 --verbose
-   if "%choice%"=="4" python tab_closer.py --days 7 --dry-run --verbose
-   pause
-   ```
-
-### Option 2: Manual Setup
+### Quick Setup (Recommended)
 
 1. **Close all Chrome windows completely**
 2. **Start Chrome with debug mode**:
@@ -76,6 +43,42 @@ A smart Chrome tab management tool that automatically closes idle tabs based on 
    # Linux
    google-chrome --remote-debugging-port=9222
    ```
+
+3. **Test the connection** by visiting `http://localhost:9222` in your browser - you should see JSON data
+
+### Optional: Create Helper Scripts
+
+You can create these batch files for easier management:
+
+**Chrome_Debug.bat** (Windows helper):
+```batch
+@echo off
+echo Closing all Chrome processes...
+taskkill /f /im chrome.exe >nul 2>&1
+echo Waiting for Chrome to close completely...
+timeout /t 2 /nobreak >nul
+echo Starting Chrome with debug mode...
+start "" "C:\Program Files\Google\Chrome\Application\chrome.exe" --remote-debugging-port=9222
+echo Chrome started with debug mode on port 9222
+pause
+```
+
+**Close_Tabs.bat** (Windows helper):
+```batch
+@echo off
+echo Choose an option:
+echo 1. Close tabs older than 7 days (recommended)
+echo 2. Close tabs older than 14 days  
+echo 3. Close tabs older than 30 days
+echo 4. Dry run - see what would be closed (7 days)
+set /p choice="Enter your choice (1-4): "
+
+if "%choice%"=="1" python tab_closer.py --days 7 --verbose
+if "%choice%"=="2" python tab_closer.py --days 14 --verbose
+if "%choice%"=="3" python tab_closer.py --days 30 --verbose
+if "%choice%"=="4" python tab_closer.py --days 7 --dry-run --verbose
+pause
+```
 
 ## 🎯 Usage
 
@@ -252,9 +255,15 @@ crontab -e
 - **Testing**: Always start with `--dry-run`
 
 ### Daily Workflow
-1. **Morning**: Start Chrome with debug mode (`Chrome_Debug.bat`)
+1. **Morning**: Start Chrome with debug mode:
+   ```bash
+   "C:\Program Files\Google\Chrome\Application\chrome.exe" --remote-debugging-port=9222
+   ```
 2. **Browse normally** throughout the day
-3. **Evening**: Run tab closer (`Close_Tabs.bat` → Option 1)
+3. **Evening**: Run tab closer:
+   ```bash
+   python tab_closer.py --days 7
+   ```
 4. **Weekly**: Review HTML index for any important closed tabs
 
 ### Backup Strategy
@@ -267,10 +276,8 @@ crontab -e
 ```
 your-project-directory/
 ├── tab_closer.py              # Main script
-├── Chrome_Debug.bat           # Chrome launcher (Windows)
-├── Close_Tabs.bat            # Quick runner (Windows)
-├── README.md                 # This file
-└── logs/                     # Created automatically
+├── README.md                  # This file
+└── logs/                      # Created automatically
     └── closed_tabs_index.html # HTML index of closed tabs
 ```
 
